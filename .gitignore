@@ -1,3 +1,8 @@
+# Format images and FITS
+*.fits
+*.pdf
+*.png
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
