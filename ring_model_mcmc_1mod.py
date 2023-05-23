@@ -66,8 +66,8 @@ def lnlike (param, u, v, v2=None, v2err=None, cp=None, cperr=None, sta_index_v=N
 # Define the probability function as likelihood * prior.
 def lnprior(param): #Function Log of prior distribution -> Insert the range of the parameters
     theta1, incl, c1, s1, la, lkr, fs, fd = param
-    if ( 130 < theta1 < 180) and ( 55 < incl < 95 ) and (0.0 < s1 < 1.0) and (0.0 < c1 < 1.0)  and (0.0 < la < 2.0) and \
-            (-1.2 < lkr < 0.0) and (0 < (fs + fd) <= 1) and (fd > 0) and (fs > 0) and (0.95<(s1**2 + c1**2) < 1.05):
+    if ( 85 < theta1 < 170) and ( 45 < incl < 85 ) and (-3.0 < s1 < 3.0) and (-3.0 < c1 < 3.0)  and (0.0 < la < 1.05) and \
+            (-2.1 < lkr < 0.5) and (0 < (fs + fd) <= 1) and (fd > 0) and (fs > 0) and (0.95<(s1**2 + c1**2) < 1.05):
    
         return 0.0
     else:
@@ -106,14 +106,14 @@ if __name__ == "__main__":
 
     ndim, nwalkers = 8, 200 #Parameters and MC
     nsteps = 7000
-    pos1 = np.random.uniform(130, 180, size=nwalkers) #theta1 (position angle)
-    pos2 = np.random.uniform(55, 85, size=nwalkers)  #incl (inclination)
-    pos3 = np.random.uniform(0, 1, size=nwalkers) #C1 (cosine of the modulation)
-    pos4 = np.random.uniform(0, 1, size=nwalkers) #S1 (sine of the modulation)
-    pos5 = np.random.uniform(0.0, 2.0, size=nwalkers)  # la (log of the disk size)
-    pos6 = np.random.uniform(-1.2, 0.0, size=nwalkers)  # lkr (log of the kernel size)
-    pos7 = np.random.uniform(0, 0.07, size=nwalkers)  # fs (flux of the star)
-    pos8 = np.random.uniform(0.7, 1, size=nwalkers)  # fd (flux of the disk)
+    pos1 = np.random.uniform(85, 170, size=nwalkers) #theta1 (position angle)
+    pos2 = np.random.uniform(45, 85, size=nwalkers)  #incl (inclination)
+    pos3 = np.random.uniform(-3.0, 3.0, size=nwalkers) #C1 (cosine of the modulation)
+    pos4 = np.random.uniform(-3.0, 3.0, size=nwalkers) #S1 (sine of the modulation)
+    pos5 = np.random.uniform(0.0,1.05, size=nwalkers)  # la (log of the disk size)
+    pos6 = np.random.uniform(-2.1, 0.5, size=nwalkers)  # lkr (log of the kernel size)
+    pos7 = np.random.uniform(0.0, 1.0, size=nwalkers)  # fs (flux of the star)
+    pos8 = np.random.uniform(0.0, 1.0, size=nwalkers)  # fd (flux of the disk)
     #pos9 = np.random.uniform(0.6, 1.5, size=nwalkers)  # C2 (cosine of the modulation)
     #pos10 = np.random.uniform(-0.4, 0.4, size=nwalkers)  # S2 (sine of the modulation)
     pos = np.array([pos1, pos2, pos3, pos4, pos5, pos6, pos7, pos8]).T
