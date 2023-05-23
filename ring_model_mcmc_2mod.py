@@ -66,8 +66,8 @@ def lnlike (param, u, v, v2=None, v2err=None, cp=None, cperr=None, sta_index_v=N
 # Define the probability function as likelihood * prior.
 def lnprior(param): #Function Log of prior distribution -> Insert the range of the parameters
     theta1, incl, c1, s1, la, lkr, fs, fd, c2, s2 = param
-    if ( 140 < theta1 < 180) and ( 40 < incl < 65 ) and (-3.0 < s1 < 3.0) and (-3.0 < c1 < 3.0) and (0.0 < la < 1.0) and \
-            (-0.4 < lkr < 0.3) and (0 < (fs + fd) <= 1) and (fd > 0) and (fs > 0) and (-3.0 < s2 < 3.0) and (-3.0 < c2 < 3.0) and (-3.0 <(s1**2 + c1**2) < 3.0) and (-3.0 <= (s2**2 + c2**2) <= 3.0):
+    if ( 140 < theta1 < 190) and ( 40 < incl < 65 ) and (0.0 < s1 < 1.0) and (0.5 < c1 < 1.0) and (0.0 < la < 1.0) and \
+            (-0.4 < lkr < 0.3) and (0 < (fs + fd) <= 1) and (fd > 0) and (fs > 0) and (-1.0 < s2 < 1.0) and (0.2 < c2 < 1.0) and (0.95 <(s1**2 + c1**2) < 1.05) and (0.0 <= (s2**2 + c2**2) <= 1.0):
    
         return 0.0
     else:
@@ -84,8 +84,8 @@ def lnprob(param, u, v, vis2, vis2_err, cp, cp_err, sta_index_v,sta_index_cp, fl
 
 if __name__ == "__main__":
 
-    oi_file = 'RCra/FT_DATA/205_COMB_FT_RCra.fits'
-    year = '2019_205_2mod_cor'
+    oi_file = 'RCra/FT_DATA/2019-2023_COMB.fits'
+    year = '2019_2023_2mod_complete_1-1'
     observables = oitools.extract_data(oi_file) #Read the file and extract all data in the dir variable 'observables'
 
     uur = observables['u']
@@ -106,16 +106,16 @@ if __name__ == "__main__":
 
     ndim, nwalkers = 10, 200 #Parameters and MC
     nsteps = 7000
-    pos1 = np.random.uniform(140, 180, size=nwalkers) #theta1 (position angle)
+    pos1 = np.random.uniform(140, 190, size=nwalkers) #theta1 (position angle)
     pos2 = np.random.uniform(40, 65, size=nwalkers)  #incl (inclination)
-    pos3 = np.random.uniform(-3.0, 3.0, size=nwalkers) #C1 (cosine of the modulation)
-    pos4 = np.random.uniform(-3.0, 3.0, size=nwalkers) #S1 (sine of the modulation)
+    pos3 = np.random.uniform(0.5, 1.0, size=nwalkers) #C1 (cosine of the modulation)
+    pos4 = np.random.uniform(0.0, 1.0, size=nwalkers) #S1 (sine of the modulation)
     pos5 = np.random.uniform(0.0, 1.0, size=nwalkers)  # la (log of the disk size)
     pos6 = np.random.uniform(-0.4, 0.3, size=nwalkers)  # lkr (log of the kernel size)
     pos7 = np.random.uniform(0, 0.5, size=nwalkers)  # fs (flux of the star)
     pos8 = np.random.uniform(0, 1, size=nwalkers)  # fd (flux of the disk)
-    pos9 = np.random.uniform(-3.0, 3.0, size=nwalkers)  # C2 (cosine of the modulation)
-    pos10 = np.random.uniform(-3.0, 3.0, size=nwalkers)  # S2 (sine of the modulation)
+    pos9 = np.random.uniform(0.2, 1.0, size=nwalkers)  # C2 (cosine of the modulation)
+    pos10 = np.random.uniform(-1.0, 1.0, size=nwalkers)  # S2 (sine of the modulation)
     #pos11 = np.random.uniform(0, 1, size=nwalkers)  # C3 (cosine of the modulation)
     #pos12 = np.random.uniform(0, 1, size=nwalkers)  # S3 (sine of the modulation)
     pos = np.array([pos1, pos2, pos3, pos4, pos5, pos6, pos7, pos8, pos9, pos10]).T
@@ -148,7 +148,7 @@ if __name__ == "__main__":
                         truths=[theta1_mcmc[0], incl_mcmc[0], c1_mcmc[0], s1_mcmc[0], la_mcmc[0], \
                                 lkr_mcmc[0], fs_mcmc[0], fd_mcmc[0],c2_mcmc[0], s2_mcmc[0]], quantiles=[0.16, 0.5, 0.84], title_kwargs={
             "fontsize": 12})  # range=[(1.555, 1.575), (0.074, 0.076), (15.9, 15.95), (-25.7, -25.5)]
-    fig.savefig("205_test_2019_2mod_cor.png")
+    fig.savefig("205_test_2019_2023_2mod_complete_1-1.png")
 
     fig2, axes = plt.subplots(10, figsize=(12, 7), sharex=True)
     labels = ['theta', 'incl', 'c1', 's1', 'la', 'lkr', 'fs', 'fd', 'c2', 's2'] #'c2', 's2'
@@ -160,7 +160,7 @@ if __name__ == "__main__":
         ax.yaxis.set_label_coords(-0.1, 0.5)
 
     axes[-1].set_xlabel("step number")
-    fig2.savefig("205_samples_2019_2mod_corr.png")
+    fig2.savefig("205_samples_2019_2023_2mod_complete_1-1.png")
 
 
 ##########
@@ -229,7 +229,7 @@ if __name__ == "__main__":
     #fig3.suptitle(tit)
     fig3.subplots_adjust(hspace=0.0)
 
-    fig3.savefig('model_azimuth_2019_205_2mod_cor.pdf', bbox_inches='tight')
+    fig3.savefig('model_azimuth_2019_2023_2mod_complete_1-1.pdf', bbox_inches='tight')
     plt.show()
     pdb.set_trace()
         
