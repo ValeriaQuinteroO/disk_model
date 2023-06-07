@@ -13,7 +13,7 @@ os.environ["OMP_NUM_THREADS"] = "1"
 
 def lnlike (param, u, v, v2=None, v2err=None, cp=None, cperr=None, sta_index_v=None, sta_index_cp=None, \
                   flag_vis2=None, flag_cp=None, wave=np.array(0.1)):
-    theta1, incl, c1, s1, la, lkr, fs, fd, c2, s2 = param  #Order with POS1,2,...
+    theta1, incl, c1, s1, la, lkr, fs, fd, c2, s2, c3, s3 = param  #Order with POS1,2,...
 
     sf_u = np.zeros([u.shape[0], wave.shape[0]]) #spatial frequency in u
     sf_v = np.zeros([v.shape[0], wave.shape[0]])
@@ -22,7 +22,7 @@ def lnlike (param, u, v, v2=None, v2err=None, cp=None, cperr=None, sta_index_v=N
     for i in range(len(wave)):
         sf_u[:, i] = np.array(u / wave[i])
         sf_v[:, i] = np.array(v / wave[i])
-        vis = mod.model_fourier3(sf_u[:, i], sf_v[:, i], theta1, incl, c1, s1, la, lkr, 1.0, fs, fd, (1-fs-fd), c2, s2) #Llama al modelo de disco
+        vis = mod.model_fourier3(sf_u[:, i], sf_v[:, i], theta1, incl, c1, s1, la, lkr, 1.0, fs, fd, (1-fs-fd), c2, s2, c3, s3) #Llama al modelo de disco
             #Result vis -> Complex visibility
         visamp_tot[:, i] = np.absolute(vis) #square of total Visibility per wavelength
 
@@ -65,9 +65,9 @@ def lnlike (param, u, v, v2=None, v2err=None, cp=None, cperr=None, sta_index_v=N
 
 # Define the probability function as likelihood * prior.
 def lnprior(param): #Function Log of prior distribution -> Insert the range of the parameters
-    theta1, incl, c1, s1, la, lkr, fs, fd, c2, s2 = param
-    if ( 140 < theta1 < 170) and ( 40 < incl < 65 ) and (1.0 < s1 < 2.5) and (0.4 < c1 < 1.7) and (-0.5 < la < 1.5) and \
-            (-0.3 < lkr < 0.5) and (0 < (fs + fd) <= 1) and (fd > 0) and (fs > 0) and (-0.4 < s2 < 0.4) and (0.6 < c2 < 1.5):
+    theta1, incl, c1, s1, la, lkr, fs, fd, c2, s2, c3, s3 = param
+    if ( 140 < theta1 < 180) and ( 30 < incl < 65 ) and (0.0 < s1 < 1.0) and (0.0 < c1 < 1.0) and (-0.5 < la < 1.5) and \
+            (-0.3 < lkr < 0.5) and (0 < (fs + fd) <= 1) and (fd > 0) and (fs > 0) and (-3.0 < s2 < 3.0) and (-3.0 < c2 < 0.0) and (-3.0 < s3 < 0.0) and (-3.0 < c3 < 0.0) and (0.95<(s1**2 + c1**2) < 1.05) and (-3.0<=(s2**2 + c2**2) <= 3.0) and (-3.0<=(s3**2 + c3**2) <= 3.0):
    
         return 0.0
     else:
@@ -84,8 +84,8 @@ def lnprob(param, u, v, vis2, vis2_err, cp, cp_err, sta_index_v,sta_index_cp, fl
 
 if __name__ == "__main__":
 
-    oi_file = 'RCra/FT_DATA/205_COMB_FT_RCra.fits'
-    year = '2019_prob5_07_4cp_erreq_c2s2_3'
+    oi_file = 'RCra/FT_DATA/2019-2023_2018_COMB.fits'
+    year = '2023-2019_2018_3mod_proof'
     observables = oitools.extract_data(oi_file) #Read the file and extract all data in the dir variable 'observables'
 
     uur = observables['u']
@@ -104,19 +104,21 @@ if __name__ == "__main__":
 
 #Prior parameters uniform distribution EMCEE
 
-    ndim, nwalkers = 10, 200 #Parameters and MC
+    ndim, nwalkers = 12, 200 #Parameters and MC
     nsteps = 7000
-    pos1 = np.random.uniform(140, 170, size=nwalkers) #theta1 (position angle)
-    pos2 = np.random.uniform(40, 65, size=nwalkers)  #incl (inclination)
-    pos3 = np.random.uniform(0.4, 1.7, size=nwalkers) #C1 (cosine of the modulation)
-    pos4 = np.random.uniform(1, 2.5, size=nwalkers) #S1 (sine of the modulation)
+    pos1 = np.random.uniform(140, 180, size=nwalkers) #theta1 (position angle)
+    pos2 = np.random.uniform(30, 65, size=nwalkers)  #incl (inclination)
+    pos3 = np.random.uniform(0.0, 1.0, size=nwalkers) #C1 (cosine of the modulation)
+    pos4 = np.random.uniform(0.0, 1.0, size=nwalkers) #S1 (sine of the modulation)
     pos5 = np.random.uniform(-0.5, 1.5, size=nwalkers)  # la (log of the disk size)
     pos6 = np.random.uniform(-0.3, 0.5, size=nwalkers)  # lkr (log of the kernel size)
     pos7 = np.random.uniform(0, 0.5, size=nwalkers)  # fs (flux of the star)
     pos8 = np.random.uniform(0.5, 1, size=nwalkers)  # fd (flux of the disk)
-    pos9 = np.random.uniform(0.6, 1.5, size=nwalkers)  # C2 (cosine of the modulation)
-    pos10 = np.random.uniform(-0.4, 0.4, size=nwalkers)  # S2 (sine of the modulation)
-    pos = np.array([pos1, pos2, pos3, pos4, pos5, pos6, pos7, pos8, pos9, pos10]).T
+    pos9 = np.random.uniform(-3.0, 0.0, size=nwalkers)  # C2 (cosine of the modulation)
+    pos10 = np.random.uniform(-3.0, 3.0, size=nwalkers)  # S2 (sine of the modulation)
+    pos11 = np.random.uniform(-3.0, 0.0, size=nwalkers)  # C3 (cosine of the modulation)
+    pos12 = np.random.uniform(-3.0, 0.0, size=nwalkers)  # S3 (sine of the modulation)
+    pos = np.array([pos1, pos2, pos3, pos4, pos5, pos6, pos7, pos8, pos9, pos10, pos11, pos12]).T
     print('Shape posssssssssssssssss')
     print(pos.shape)
 
@@ -138,18 +140,18 @@ if __name__ == "__main__":
 
     # 'c2', 's2'
     # c2_mcmc[0], s2_mcmc[0]]
-    theta1_mcmc, incl_mcmc, c1_mcmc, s1_mcmc, la_mcmc, lkr_mcmc, fs_mcmc, fd_mcmc, c2_mcmc, s2_mcmc = map(lambda v: (v[1], v[2] - v[1], v[1] - v[0]), #, c2_mcmc, s2_mcmc
+    theta1_mcmc, incl_mcmc, c1_mcmc, s1_mcmc, la_mcmc, lkr_mcmc, fs_mcmc, fd_mcmc, c2_mcmc, s2_mcmc, c3_mcmc, s3_mcmc = map(lambda v: (v[1], v[2] - v[1], v[1] - v[0]), #, c2_mcmc, s2_mcmc
                                    zip(*np.percentile(samples, [16, 50, 84], axis=0)))
-    fig = corner.corner(samples, labels=['theta', 'incl', 'c1', 's1', 'la', 'lkr', 'fs', 'fd','c2', 's2'], \
+    fig = corner.corner(samples, labels=['theta', 'incl', 'c1', 's1', 'la', 'lkr', 'fs', 'fd','c2', 's2','c3','s3'], \
                         show_titles=True, title_fmt="0.2e",
                         levels=(1 - np.exp(-0.5), 1 - np.exp(-2.0)), \
                         truths=[theta1_mcmc[0], incl_mcmc[0], c1_mcmc[0], s1_mcmc[0], la_mcmc[0], \
-                                lkr_mcmc[0], fs_mcmc[0], fd_mcmc[0],c2_mcmc[0], s2_mcmc[0]], quantiles=[0.16, 0.5, 0.84], title_kwargs={
+                                lkr_mcmc[0], fs_mcmc[0], fd_mcmc[0],c2_mcmc[0], s2_mcmc[0],c3_mcmc[0], s3_mcmc[0]], quantiles=[0.16, 0.5, 0.84], title_kwargs={
             "fontsize": 12})  # range=[(1.555, 1.575), (0.074, 0.076), (15.9, 15.95), (-25.7, -25.5)]
-    fig.savefig("205_test_prob5_07_4cp_erreq_c2s2_4.png")
+    fig.savefig("205-207_test_2023-2019-2018_3mod_proof.png")
 
-    fig2, axes = plt.subplots(10, figsize=(10, 7), sharex=True)
-    labels = ['theta', 'incl', 'c1', 's1', 'la', 'lkr', 'fs', 'fd', 'c2', 's2'] #'c2', 's2'
+    fig2, axes = plt.subplots(12, figsize=(12, 7), sharex=True)
+    labels = ['theta', 'incl', 'c1', 's1', 'la', 'lkr', 'fs', 'fd', 'c2', 's2', 'c3', 's3'] #'c2', 's2'
     for i in range(ndim):
         ax = axes[i]
         ax.plot(samples[:, i], "k", alpha=0.3)
@@ -158,7 +160,7 @@ if __name__ == "__main__":
         ax.yaxis.set_label_coords(-0.1, 0.5)
 
     axes[-1].set_xlabel("step number")
-    fig2.savefig("205_samples_prob5_07_4cp_erreq_c2s2_3.png")
+    fig2.savefig("205-207_samples_2023-2019-2018_3mod_proof.png")
 
 
 ##########
@@ -172,10 +174,10 @@ if __name__ == "__main__":
     for i in range(len(wave)):
         vis = mod.model_fourier3(uur / wave[i], vvr / wave[i], theta1_mcmc[0], incl_mcmc[0], c1_mcmc[0], s1_mcmc[0], \
                                  la_mcmc[0], lkr_mcmc[0], 1.0, \
-                                fs_mcmc[0], fd_mcmc[0], 1-fs_mcmc[0]-fd_mcmc[0], c2_mcmc[0], s2_mcmc[0])
+                                fs_mcmc[0], fd_mcmc[0], 1-fs_mcmc[0]-fd_mcmc[0], c2_mcmc[0], s2_mcmc[0], c3_mcmc[0], s3_mcmc[0])
         im = mod.model_im3(512, 1.0 / mod.mas2rad(0.1 * 512), theta1_mcmc[0], incl_mcmc[0], c1_mcmc[0], s1_mcmc[0], \
                                  la_mcmc[0], lkr_mcmc[0], 1.0, \
-                                fs_mcmc[0], fd_mcmc[0], 1-fs_mcmc[0]-fd_mcmc[0], c2_mcmc[0], s2_mcmc[0], wave[i], year ) #, c2_mcmc[0], s2_mcmc[0]
+                                fs_mcmc[0], fd_mcmc[0], 1-fs_mcmc[0]-fd_mcmc[0], c2_mcmc[0], s2_mcmc[0], c3_mcmc[0], s3_mcmc[0], wave[i], year ) #, c2_mcmc[0], s2_mcmc[0]
 
         visamp = np.absolute(vis)
         visphi = np.angle(vis, deg=True)
@@ -227,7 +229,7 @@ if __name__ == "__main__":
     #fig3.suptitle(tit)
     fig3.subplots_adjust(hspace=0.0)
 
-    fig3.savefig('model_azimuth_205_prob5_07_4cp_erreq_c2s2_3.pdf', bbox_inches='tight')
+    fig3.savefig('model_azimuth_2023-2019-2018_3mod_proof.pdf', bbox_inches='tight')
     plt.show()
     pdb.set_trace()
         

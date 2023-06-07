@@ -84,8 +84,8 @@ def lnprob(param, u, v, vis2, vis2_err, cp, cp_err, sta_index_v,sta_index_cp, fl
 
 if __name__ == "__main__":
 
-    oi_file = 'RCra/FT_DATA/2019-2023_2018_COMB.fits'
-    year = '2018_2019_2023_2mod_3-3'
+    oi_file = 'RCra/FT_DATA/2016_06_209_COMB_RCra.fits'
+    year = '2016-06_2mod_209'
     observables = oitools.extract_data(oi_file) #Read the file and extract all data in the dir variable 'observables'
 
     uur = observables['u']
@@ -104,8 +104,8 @@ if __name__ == "__main__":
 
 #Prior parameters uniform distribution EMCEE
 
-    ndim, nwalkers = 10, 200 #Parameters and MC
-    nsteps = 7000
+    ndim, nwalkers = 10, 100 #Parameters and MC
+    nsteps = 2000
     pos1 = np.random.uniform(150, 180, size=nwalkers) #theta1 (position angle)
     pos2 = np.random.uniform(30, 65, size=nwalkers)  #incl (inclination)
     pos3 = np.random.uniform(0.0, 1.0, size=nwalkers) #C1 (cosine of the modulation)
@@ -130,8 +130,10 @@ if __name__ == "__main__":
         sampler.run_mcmc(pos, nsteps, progress=True)
     
     samples = sampler.get_chain(flat=True, thin=1, discard= int(0.7*nsteps))
+    #print(samples.shape)
     probs = sampler.get_log_prob(flat=True, thin=1, discard=int(0.7*nsteps))
-    samples = samples[np.where(probs>5*np.max(probs))]
+    #samples = samples[np.where(probs>5*np.max(probs))]
+    print(np.max(probs), ' A ver la probbbbbbbb ------*******')
 
 
     print(type(samples))
@@ -148,7 +150,7 @@ if __name__ == "__main__":
                         truths=[theta1_mcmc[0], incl_mcmc[0], c1_mcmc[0], s1_mcmc[0], la_mcmc[0], \
                                 lkr_mcmc[0], fs_mcmc[0], fd_mcmc[0],c2_mcmc[0], s2_mcmc[0]], quantiles=[0.16, 0.5, 0.84], title_kwargs={
             "fontsize": 12})  # range=[(1.555, 1.575), (0.074, 0.076), (15.9, 15.95), (-25.7, -25.5)]
-    fig.savefig("225_test_2018_2019_2023_2mod_3-3.png")
+    fig.savefig("209_test_2016-06_2mod.png")
 
     fig2, axes = plt.subplots(10, figsize=(12, 7), sharex=True)
     labels = ['theta', 'incl', 'c1', 's1', 'la', 'lkr', 'fs', 'fd', 'c2', 's2'] #'c2', 's2'
@@ -160,7 +162,7 @@ if __name__ == "__main__":
         ax.yaxis.set_label_coords(-0.1, 0.5)
 
     axes[-1].set_xlabel("step number")
-    fig2.savefig("225_samples_2018_2019_2023_2mod_3-3.png")
+    fig2.savefig("209_samples_2016-06_2mod.png")
 
 
 ##########
@@ -229,7 +231,7 @@ if __name__ == "__main__":
     #fig3.suptitle(tit)
     fig3.subplots_adjust(hspace=0.0)
 
-    fig3.savefig('model_azimuth_2018_2019_2023_2mod_3-3.pdf', bbox_inches='tight')
+    fig3.savefig('model_azimuth_2016-06-209_2mod.pdf', bbox_inches='tight')
     plt.show()
     pdb.set_trace()
         
